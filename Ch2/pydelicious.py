@@ -86,7 +86,8 @@ import sys
 import os
 import time
 import datetime
-import md5, http.client
+import hashlib, http.client
+#import md5, http.client
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, time
 from io import StringIO
 
@@ -185,7 +186,7 @@ class PyDeliciousException(Exception):
     pass
 
 class DeliciousError(Exception):
-	"""Raised when the server responds with a negative answer"""
+    """Raised when the server responds with a negative answer"""
 
 
 class DefaultErrorHandler(urllib.request.HTTPDefaultErrorHandler):
@@ -282,12 +283,12 @@ def http_request(url, user_agent=USER_AGENT, retry=4):
 
         except urllib.error.URLError as e:
             # @xxx: Ugly check for time-out errors
-			#if len(e)>0 and 'timed out' in arg[0]:
-			print("%s, %s tries left." % (e, tries), file=sys.stderr)
-			Waiter()
-			tries = tries - 1
-			#else:
-			#	tries = None
+            #if len(e)>0 and 'timed out' in arg[0]:
+            print("%s, %s tries left." % (e, tries), file=sys.stderr)
+            Waiter()
+            tries = tries - 1
+            #else:
+            #    tries = None
 
     # Give up
     raise PyDeliciousException("Unable to retrieve data at '%s', %s" % (url, e))
@@ -348,7 +349,7 @@ def dlcs_parse_xml(data, split_tags=False):
      {'posts': [{'url':'...','hash':'...',},],}
      {'tags':['tag1', 'tag2',]}
      {'dates': [{'count':'...','date':'...'},], 'tag':'', 'user':'...'}
-	 {'result':(True, "done")}
+     {'result':(True, "done")}
      # etcetera.
     """
 
@@ -361,7 +362,7 @@ def dlcs_parse_xml(data, split_tags=False):
     root = doc.getroot()
     fmt = root.tag
 
-	# Split up into three cases: Data, Result or Update
+    # Split up into three cases: Data, Result or Update
     if fmt in ('tags', 'posts', 'dates', 'bundles'):
 
         # Data: expect a list of data elements, 'resources'.
@@ -386,7 +387,7 @@ def dlcs_parse_xml(data, split_tags=False):
         else:
             msg = root.text
 
-		# Return {'result':(True, msg)} for /known/ O.K. messages,
+        # Return {'result':(True, msg)} for /known/ O.K. messages,
         # use (False, msg) otherwise
         v = msg in DLCS_OK_MESSAGES
         return {fmt: (v, msg)}
@@ -395,7 +396,7 @@ def dlcs_parse_xml(data, split_tags=False):
 
         # Update: "time"
         #return {fmt: root.attrib}
-		return {fmt: {'time':time.strptime(root.attrib['time'], ISO_8601_DATETIME)}}
+        return {fmt: {'time':time.strptime(root.attrib['time'], ISO_8601_DATETIME)}}
 
     else:
         raise PyDeliciousException("Unknown XML document format '%s'" % fmt)
@@ -551,7 +552,7 @@ class DeliciousAPI:
             fl = self._call_server(path, **params)
             rs = self._parse_response(fl)
 
-			# Raise an error for negative 'result' answers
+            # Raise an error for negative 'result' answers
             if type(rs) == dict and rs == 'result' and not rs['result'][0]:
                 errmsg = ""
                 if len(rs['result'])>0:
@@ -599,7 +600,7 @@ class DeliciousAPI:
         ::
 
             <update time="CCYY-MM-DDThh:mm:ssZ">
-		"""
+        """
         return self.request("posts/update", **kwds)
 
     def posts_dates(self, tag="", **kwds):
@@ -755,7 +756,7 @@ class DeliciousAPI:
 def apiNew(user, passwd):
     """creates a new DeliciousAPI object.
     requires user(name) and passwd
-	"""
+    """
     return DeliciousAPI(user=user, passwd=passwd)
 
 def add(user, passwd, url, description, tags="", extended="", dt="", replace="no"):
@@ -783,13 +784,13 @@ def get_tags(user, passwd):
 def getrss(tag="", popular=0, url='', user=""):
     """get posts from del.icio.us via parsing RSS @bvb[or HTML]
 
-	@bvb[not tested]
+    @bvb[not tested]
 
     tag (opt) sort by tag
     popular (opt) look for the popular stuff
     user (opt) get the posts by a user, this striks popular
     url (opt) get the posts by url
-	"""
+    """
     return dlcs_rss_request(tag=tag, popular=popular, user=user, url=url)
 
 def get_userposts(user):

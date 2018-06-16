@@ -56,7 +56,7 @@ def sim_pearson(prefs,p1,p2):
   
   # Sums of the squares
   sum1Sq=sum([pow(prefs[p1][it],2) for it in si])
-  sum2Sq=sum([pow(prefs[p2][it],2) for it in si])	
+  sum2Sq=sum([pow(prefs[p2][it],2) for it in si])    
   
   # Sum of the products
   pSum=sum([prefs[p1][it]*prefs[p2][it] for it in si])
@@ -92,7 +92,7 @@ def getRecommendations(prefs,person,similarity=sim_pearson):
     # ignore scores of zero or lower
     if sim<=0: continue
     for item in prefs[other]:
-	    
+        
       # only score movies I haven't seen yet
       if item not in prefs[person] or prefs[person][item]==0:
         # Similarity * Score
